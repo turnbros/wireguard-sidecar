@@ -16,7 +16,7 @@ on:
   pull_request:
 
 env:
-  IMAGE_NAME: patina
+  IMAGE_NAME: wireguard-sidecar
 
 jobs:
 
