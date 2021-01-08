@@ -3,7 +3,7 @@ RUN yum group install -y "Development Tools" &&\
     yum install -y epel-release &&\
     yum install -y git &&\
     yum install -y go &&\
-    git clone https://git.zx2c4.com/wireguard-go &&\
+    git clone https://github.com/WireGuard/wireguard-go.git &&\
     cd wireguard-go &&\
     make &&\
     cp ./wireguard-go /tmp/wireguard-go
