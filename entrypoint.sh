@@ -5,7 +5,8 @@ mkdir /dev/net
 mknod /dev/net/tun c 10 200
 
 # Create the wireguard interface
-wireguard-go ${INTERFACE_NAME}
+ip link add dev ${INTERFACE_NAME} type wireguard
+#wireguard-go ${INTERFACE_NAME}
 
 # Set the private key for this wireguard interface
 wg set ${INTERFACE_NAME} private-key ${WIREGUARD_KEY_PATH}
