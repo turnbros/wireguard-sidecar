@@ -1,0 +1,54 @@
+name: Docker Image CI
+
+
+on:
+  push:
+    # Publish `master` as Docker `latest` image.
+    branches:
+      - main
+
+    # Publish `v1.2.3` tags as releases.
+    tags:
+      - v*
+
+  # Run tests for any PRs.
+  pull_request:
+
+env:
+  IMAGE_NAME: wireguard-sidecar
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+    
+    if: github.event_name == 'push'
+
+    steps:
+    
+    - uses: actions/checkout@v2
+
+    - name: Login to github docker Registry
+      run: docker login docker.pkg.github.com -u iamangus -p ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set the image repo name and tag
+      id: image_vars
+      run: |
+        # Construct an image id and includes the repo.
+        IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME
+        # Strip git ref prefix from version.
+        VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+        # Strip "v" prefix from tag name.
+        [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+        # Use Docker `latest` tag convention.
+        [ "$VERSION" == "master" ] && VERSION=latest
+        
+        # Set variables that can be used in other steps.
+        echo ::set-output name=repo::$(echo $IMAGE_ID | awk '{print tolower($0)}')
+        echo ::set-output name=tag::$(echo $VERSION | awk '{print tolower($0)}')
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag ${{steps.image_vars.outputs.repo}}:${{steps.image_vars.outputs.tag}}
+
+    - name: Push the Docker image
+      run: docker push ${{steps.image_vars.outputs.repo}}:${{steps.image_vars.outputs.tag}}
