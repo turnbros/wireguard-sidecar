@@ -19,4 +19,10 @@ wg setconf ${INTERFACE_NAME} ${WIREGUARD_CONFIG_PATH}
 # Turn on the wireguard interface
 ip link set up dev ${INTERFACE_NAME}
 
+# Add any additional routes
+for i in ${WIREGUARD_EXTRA_ROUTED_CIDRS//,/ }
+do
+  ip route add ${i} via 0.0.0.0 dev ${INTERFACE_NAME}
+done
+
 $@
